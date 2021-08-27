@@ -77,7 +77,7 @@ class Letter:
 
 def solve3(s):
     """
-    This solution follows the post-event analysis
+    This solution follows the post-event analysis. It passes both tests
     """
     seq = [Letter(c, i) for i, c in enumerate(s)]
     count = Counter(seq)
