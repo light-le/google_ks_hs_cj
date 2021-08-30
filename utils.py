@@ -24,6 +24,15 @@ def get_input(inputs):
         return wrapper
     return inner
 
+
+def print_args(f):
+    def inner(*args):
+        print(args)
+        result = f(*args)
+        print('result', result)
+        return result
+    return inner
+
 if __name__ == '__main__':
     print(input())
     print(input())
