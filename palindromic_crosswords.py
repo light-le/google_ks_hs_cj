@@ -1,4 +1,5 @@
 from utils import get_input
+from collections import defaultdict
 
 INPUTS = """
 4
@@ -144,10 +145,64 @@ def solve2(rows):
     return dot_before-dot_after, rows
 
 
+class Letter:
+    def __init__(self, label, x, y, row_mirror=False, col_mirror=False) -> None:
+        self.label = label
+        self.x = x
+        self.y = y
+        self.row_mirror = row_mirror
+        self.col_mirror = col_mirror
+
+    def check_opposite(self, rc, co):
+        # return x/y of the opposite
+        
+        left = 0
+        right = 0
+        for r in range(co+1, len(rc)):
+            if rc[r] == '#':
+                break
+            right+=1
+        for l in range(co-1, -1, -1):
+            if rc[l] == '#':
+                break
+            left+=1
+        return co - left + right
+
+
+def solve3(rows):
+    nrow = len(rows)
+    ncol = len(rows[0])
+    dot_before = count_dot(rows)
+    if dot_before == 0:
+        return 0, rows
+    frontier = []
+    for r, row in enumerate(rows):
+        for c, cell in enumerate(row):
+            if cell not in ['#', '.']:
+                frontier.append(Letter(cell, c, r))
+    count = 0
+    while frontier:
+        letter = frontier.pop()
+        if not letter.row_mirror:
+            xopp = letter.check_opposite(rows[letter.y], letter.x)
+            if rows[letter.y][xopp] == '.':
+                rows[letter.y][xopp] = letter.label
+                count+=1
+                frontier.append(Letter(letter.label, xopp, letter.y, row_mirror=True))
+        if not letter.col_mirror:
+            yopp = letter.check_opposite([rows[c][letter.x] for c in range(nrow)], letter.y)
+            if rows[yopp][letter.x] == '.':
+                rows[yopp][letter.x] = letter.label
+                count+=1
+                frontier.append(Letter(letter.label, letter.x, yopp, col_mirror=True))
+    return count, rows
+
+
+
 for case in range(1, int(input())+1):
     N, M = [int(s) for s in input().split(' ')]
     rows = [[c for c in input()] for _ in range(N)]
-    count, ans = solve2(rows)
+    count, ans = solve3(rows)
     print(f'Case #{case}: {count}')
     for row in ans:
         print(''.join([str(cell) for cell in row]))
